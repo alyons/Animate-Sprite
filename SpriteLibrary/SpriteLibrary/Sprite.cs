@@ -111,6 +111,22 @@ namespace SpriteLibrary
         {
             spriteBatch.Draw(Texture, Position, Rectangles[frame], Color.White);
         }
+        public void Draw(SpriteBatch spriteBatch, Color color)
+        {
+            spriteBatch.Draw(Texture, Position, Rectangles[frame], color);
+        }
+        public void Draw(SpriteBatch spriteBatch, Rectangle destinationRectangle, Color color, float rotation, Vector2 origin, SpriteEffects effects, float layerDepth)
+        {
+            spriteBatch.Draw(Texture, destinationRectangle, Rectangles[frame], color, rotation, origin, effects, layerDepth);
+        }
+        public void Draw(SpriteBatch spriteBatch, Color color, float rotation, Vector2 origin, float scale, SpriteEffects effects, float layerDepth)
+        {
+            spriteBatch.Draw(Texture, Position, Rectangles[frame], color, rotation, origin, scale, effects, layerDepth);
+        }
+        public void Draw(SpriteBatch spriteBatch, Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects effects, float layerDepth)
+        {
+            spriteBatch.Draw(Texture, Position, Rectangles[frame], color, rotation, origin, scale, effects, layerDepth);
+        }
 
         private void StringToRectangle(List<string> strings)
         {

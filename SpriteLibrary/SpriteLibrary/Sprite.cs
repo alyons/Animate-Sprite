@@ -1,4 +1,4 @@
-/// Copyright Alexander Lyons 2011, 2013
+/// Copyright Alexander Lyons 2010, 2011, 2013
 ///
 /// This file is part of SpriteLibrary.
 ///
@@ -25,6 +25,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using System.Diagnostics;
 
 namespace SpriteLibrary
 {
@@ -55,7 +56,7 @@ namespace SpriteLibrary
         /// <summary>
         /// RectangleAsset refers to which xml asset (by relative path) is used to render the sprite.
         /// </summary>
-        public String RectangeAsset { get; set; }
+        public String RectangleAsset { get; set; }
 
         /// <summary>
         /// This is the texture used to pull image data from.
@@ -88,7 +89,7 @@ namespace SpriteLibrary
         public void Load(ContentManager content)
         {
             Texture = content.Load<Texture2D>(TextureAsset);
-            StringToRectangle(content.Load<List<string>>(RectangeAsset));
+            StringToRectangle(content.Load<List<string>>(RectangleAsset));
         }
 
         public void Update(GameTime gameTime)
@@ -159,7 +160,15 @@ namespace SpriteLibrary
 
             return data;
         }
-        public bool[,] GetOpaqueData(Color toIgnore)
+        public bool[,] GetOpaqueData(Color toTest)
+        {
+            return GetOpaqueData(toTest, true);
+        }
+        public bool[,] GetOpaqueData(List<Color> toTest)
+        {
+            return GetOpaqueData(toTest, true);
+        }
+        public bool[,] GetOpaqueData(Color toTest, bool isIgnore)
         {
             int x = Rectangles[frame].X;
             int y = Rectangles[frame].Y;
@@ -171,7 +180,34 @@ namespace SpriteLibrary
 
             for (int i = x; i < x + w; i++)
                 for (int j = y; j < y + h; j++)
-                    data[i - x, j - y] = !(pixels[i + j * Texture.Width].Equals(toIgnore));
+                    if (isIgnore)
+                    {
+                        data[i - x, j - y] = !(pixels[i + j * Texture.Width].Equals(toTest));
+                        //Debug.WriteLine(String.Format("Pixel ({0},{1}): {2}", (i - x), (j - y), pixels[i + j * Texture.Width].ToString()));
+                    }
+                    else
+                    {
+                        data[i - x, j - y] = (pixels[i + j * Texture.Width].Equals(toTest));
+                    }
+
+            return data;
+        }
+        public bool[,] GetOpaqueData(List<Color> toTest, bool isIgnore)
+        {
+            int x = Rectangles[frame].X;
+            int y = Rectangles[frame].Y;
+            int h = Rectangles[frame].Height;
+            int w = Rectangles[frame].Width;
+            bool[,] data = new bool[w, h];
+            Color[] pixels = new Color[Texture.Width * Texture.Height];
+            Texture.GetData<Color>(pixels);
+
+            for (int i = x; i < x + w; i++)
+                for (int j = y; j < y + h; j++)
+                    if (isIgnore)
+                        data[i - x, j - y] = !toTest.Exists(c => c.Equals(pixels[i + j * Texture.Width]));
+                    else
+                        data[i - x, j - y] = toTest.Exists(c => c.Equals(pixels[i + j * Texture.Width]));
 
             return data;
         }

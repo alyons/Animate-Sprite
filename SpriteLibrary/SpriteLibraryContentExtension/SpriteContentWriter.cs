@@ -1,4 +1,4 @@
-/// Copyright Alexander Lyons 2011, 2013
+/// Copyright Alexander Lyons 2010, 2011, 2013
 ///
 /// This file is part of SpriteLibrary.
 ///
@@ -37,7 +37,7 @@ namespace SpriteLibraryContentExtension
             output.Write(value.Position);
             output.Write(value.FPS);
             output.Write(value.TextureAsset);
-            output.Write(value.RectangeAsset);
+            output.Write(value.RectangleAsset);
         }
 
         public override string GetRuntimeReader(TargetPlatform targetPlatform)

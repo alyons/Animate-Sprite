@@ -1,4 +1,6 @@
-﻿/// Copyright Alexander Lyons 2010, 2011, 2013
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--
+/// Copyright Alexander Lyons 2010, 2011, 2013
 ///
 /// This file is part of SpriteLibrary.
 ///
@@ -14,16 +16,16 @@
 /// 
 /// You should have received a copy of the GNU General Public License
 /// along with SpriteLibrary.  If not, see <http://www.gnu.org/licenses/>.
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace SpriteLibrary
-{
-    public class SpriteEventArgs : EventArgs
-    {
-
-    }
-}
+-->
+<XnaContent xmlns:Generic="System.Collections.Generic">
+  <Asset Type="Generic:List[string]">
+    <Item>6 10 32 35</Item>
+    <Item>42 10 32 35</Item>
+    <Item>78 10 32 35</Item>
+    <Item>114 10 32 35</Item>
+    <Item>150 10 32 35</Item>
+    <Item>186 10 32 35</Item>
+    <Item>222 10 32 35</Item>
+    <Item>258 10 32 35</Item>
+  </Asset>
+</XnaContent>

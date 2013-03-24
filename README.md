@@ -18,10 +18,18 @@ Version 1.2 - Added overrides for GetOpaqueData(). First override GetOpaqueData(
 			  having an alpha greater than or equal to the alpha that user specifies rather than the pixel having to have an aplha 
 			  of 255. The second override determines opacity based on if the color of the pixel is equal to the color input by the 
 			  user; if the colors match, the pixel is deemed transparent.
+			  
+Version 1.3 - Added Draw() overrides so that special sprite effects can be applied. Expanded the GetOpaqueData() so that more choices
+			  can be made to have the sprites work how a user wants them to.
 
 How To Use
 ============================================
 To be updated soon...
 
+Notes
+============================================
+The Sonic Advance 3 images are all owned by SEGA and are used only for purposes of demonstration, not for reproduction use in a 
+distributed product for gain.
 
-Copyright 2011, 2013 Alexander Lyons
+
+Copyright 2010, 2011, 2013 Alexander Lyons

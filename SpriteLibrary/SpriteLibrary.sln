@@ -5,6 +5,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpriteLibrary", "SpriteLibr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpriteLibraryContentExtension", "SpriteLibraryContentExtension\SpriteLibraryContentExtension.csproj", "{18156A84-702A-4352-848D-2808CA5860E0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpriteLibraryExample", "SpriteLibraryExample\SpriteLibraryExample\SpriteLibraryExample.csproj", "{29CE2E76-0AD9-42AD-9406-5ECBA10A0B8A}"
+EndProject
+Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "SpriteLibraryExampleContent", "SpriteLibraryExample\SpriteLibraryExampleContent\SpriteLibraryExampleContent.contentproj", "{90E0B57E-CFC8-4B19-95FA-12FECDC268DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -19,6 +23,12 @@ Global
 		{18156A84-702A-4352-848D-2808CA5860E0}.Debug|x86.Build.0 = Debug|x86
 		{18156A84-702A-4352-848D-2808CA5860E0}.Release|x86.ActiveCfg = Release|x86
 		{18156A84-702A-4352-848D-2808CA5860E0}.Release|x86.Build.0 = Release|x86
+		{29CE2E76-0AD9-42AD-9406-5ECBA10A0B8A}.Debug|x86.ActiveCfg = Debug|x86
+		{29CE2E76-0AD9-42AD-9406-5ECBA10A0B8A}.Debug|x86.Build.0 = Debug|x86
+		{29CE2E76-0AD9-42AD-9406-5ECBA10A0B8A}.Release|x86.ActiveCfg = Release|x86
+		{29CE2E76-0AD9-42AD-9406-5ECBA10A0B8A}.Release|x86.Build.0 = Release|x86
+		{90E0B57E-CFC8-4B19-95FA-12FECDC268DD}.Debug|x86.ActiveCfg = Debug|x86
+		{90E0B57E-CFC8-4B19-95FA-12FECDC268DD}.Release|x86.ActiveCfg = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

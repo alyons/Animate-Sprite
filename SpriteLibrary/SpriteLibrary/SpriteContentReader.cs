@@ -1,4 +1,4 @@
-﻿/// Copyright Alexander Lyons 2011, 2013
+﻿/// Copyright Alexander Lyons 2010, 2011, 2013
 ///
 /// This file is part of SpriteLibrary.
 ///
@@ -33,7 +33,7 @@ namespace SpriteLibrary
             sprite.Position = input.ReadVector2();
             sprite.FPS = input.ReadInt32();
             sprite.TextureAsset = input.ReadString();
-            sprite.RectangeAsset = input.ReadString();
+            sprite.RectangleAsset = input.ReadString();
 
             sprite.Load(input.ContentManager);
 

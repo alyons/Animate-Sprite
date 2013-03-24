@@ -1,4 +1,4 @@
-﻿/// Copyright Alexander Lyons 2010, 2011, 2013
+/// Copyright Alexander Lyons 2010, 2011, 2013
 ///
 /// This file is part of SpriteLibrary.
 ///
@@ -16,14 +16,23 @@
 /// along with SpriteLibrary.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace SpriteLibrary
+namespace SpriteLibraryExample
 {
-    public class SpriteEventArgs : EventArgs
+#if WINDOWS || XBOX
+    static class Program
     {
-
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
+        static void Main(string[] args)
+        {
+            using (Game1 game = new Game1())
+            {
+                game.Run();
+            }
+        }
     }
+#endif
 }
+

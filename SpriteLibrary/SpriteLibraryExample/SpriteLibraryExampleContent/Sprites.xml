@@ -21,10 +21,15 @@
   <Asset Type="Generic:List[SpriteLibrary.Sprite]">
     <Item>
       <Name>Sonic Standing</Name>
-      <Position>0 0</Position>
-      <FPS>15</FPS>
+      <FPS>12</FPS>
       <TextureAsset>sonicadvance3</TextureAsset>
       <RectangleAsset>sonicStandRects</RectangleAsset>
+    </Item>
+    <Item>
+      <Name>Chaos Emerald</Name>
+      <FPS>0</FPS>
+      <TextureAsset>sonicadvance3</TextureAsset>
+      <RectangleAsset>chaosEmeraldRects</RectangleAsset>
     </Item>
   </Asset>
 </XnaContent>

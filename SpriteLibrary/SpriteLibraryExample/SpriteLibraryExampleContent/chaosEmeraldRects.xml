@@ -1,4 +1,6 @@
-﻿/// Copyright Alexander Lyons 2010, 2011, 2013
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<!--
+/// Copyright Alexander Lyons 2010, 2011, 2013
 ///
 /// This file is part of SpriteLibrary.
 ///
@@ -14,29 +16,9 @@
 /// 
 /// You should have received a copy of the GNU General Public License
 /// along with SpriteLibrary.  If not, see <http://www.gnu.org/licenses/>.
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.Xna.Framework.Content;
-
-namespace SpriteLibrary
-{
-    public class SpriteContentReader : ContentTypeReader<Sprite>
-    {
-        protected override Sprite Read(ContentReader input, Sprite existingInstance)
-        {
-            Sprite sprite = new Sprite();
-
-            sprite.Name = input.ReadString();
-            sprite.FPS = input.ReadInt32();
-            sprite.TextureAsset = input.ReadString();
-            sprite.RectangleAsset = input.ReadString();
-
-            sprite.Load(input.ContentManager);
-
-            return sprite;
-        }
-    }
-}
+-->
+<XnaContent xmlns:Generic="System.Collections.Generic">
+  <Asset Type="Generic:List[string]">
+    <Item>99 1618 12 8</Item>
+  </Asset>
+</XnaContent>

@@ -34,9 +34,16 @@ namespace SpriteLibraryExample
     /// </summary>
     public class Game1 : Microsoft.Xna.Framework.Game
     {
+        int minutes = 0;
         int seconds = 0;
         int milliseconds = 0;
         int loops = 0;
+        string timeFormat = "{0,-2:D2}:{1,-2:D2}:{2,-3:D3}";
+        bool collision = false;
+        bool boundsCollide = false;
+        string displayFormat = "Time: {0}\nBounds: {1}\nBounds Collide: {2}\nPixels Collide: {3}";
+        const float rotationSpeed = 0.005f;
+        List<Vector2> pointsOfCollision;
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -44,6 +51,7 @@ namespace SpriteLibraryExample
         bool[,] data;
         SpriteFont font;
         Texture2D shadowPixel;
+        Texture2D lightPixel;
         Vector2 baseResolution = new Vector2(1280, 720);
         Vector2 scaledResolution = new Vector2(1280, 720);
         Vector3 scalingFactor = new Vector3();
@@ -65,7 +73,7 @@ namespace SpriteLibraryExample
             }
             graphics.ApplyChanges();
             Content.RootDirectory = "Content";
-            this.IsMouseVisible = true;
+            //this.IsMouseVisible = true;
         }
 
         /// <summary>
@@ -76,8 +84,7 @@ namespace SpriteLibraryExample
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-
+            pointsOfCollision = new List<Vector2>();
             base.Initialize();
         }
 
@@ -87,16 +94,21 @@ namespace SpriteLibraryExample
         /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             sprites = Content.Load<List<Sprite>>(@"Sprites");
             font = Content.Load<SpriteFont>("font");
             shadowPixel = Content.Load<Texture2D>("BigPixel");
+            lightPixel = Content.Load<Texture2D>("BigPixelYellow");
 
             foreach (Sprite s in sprites)
+            {
+                if (s.Name.Equals("Sonic Standing"))
+                {
+                    s.Position = new Vector2(640.0f, 360.0f);
+                    s.Scale = 2.0f;
+                }
                 s.EndOfAnimation += new Sprite.SpriteEventHandler(s_EndOfAnimation);
-
-            // TODO: use this.Content to load your game content here
+            }
         }
 
         void s_EndOfAnimation(object sender, SpriteEventArgs e)
@@ -129,22 +141,41 @@ namespace SpriteLibraryExample
             float verScaling = (float)graphics.PreferredBackBufferHeight / baseResolution.Y;
             scalingFactor = new Vector3(horScaling, verScaling, 1);
 
-            foreach (Sprite s in sprites)
-            {
-                s.Update(gameTime);
-            }
-
             mousePos = new Vector2(Mouse.GetState().X, Mouse.GetState().Y);
+            if (sprites != null)
+            {
+                if (sprites.Count > 0)
+                {
+                    foreach (Sprite s in sprites)
+                    {
+                        s.Update(gameTime);
+                    }
+                    sprites[0].Rotation += rotationSpeed;
+                    data = sprites[0].OpaqueData;
+                }
 
-            data = sprites[0].GetOpaqueData();
+                if (sprites.Count > 1)
+                {
+                    sprites[1].Position = mousePos;
+                    boundsCollide = sprites[0].Bounds.Intersects(sprites[1].Bounds);
+                    collision = sprites[0].Collide(sprites[1]);
+                    pointsOfCollision.Clear();
+                    if (collision) pointsOfCollision.AddRange(sprites[0].PointsOfCollision(sprites[1]));
+                } 
+            }
 
             milliseconds += gameTime.ElapsedGameTime.Milliseconds;
             if (milliseconds > 999)
             {
                 seconds += 1;
                 milliseconds -= 1000;
-            }
 
+                if (seconds > 59)
+                {
+                    minutes += 1;
+                    seconds -= 60;
+                }
+            }
 
             base.Update(gameTime);
         }
@@ -160,22 +191,31 @@ namespace SpriteLibraryExample
 
             // TODO: Add your drawing code here
             spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, globalScaling);
-            foreach (Sprite s in sprites)
+
+            if (sprites != null)
             {
-                s.Draw(spriteBatch);
+                if (sprites.Count > 0)
+                {
+                    spriteBatch.DrawString(font, String.Format(displayFormat, String.Format(timeFormat, minutes, seconds, milliseconds), sprites[0].Bounds, boundsCollide, collision), new Vector2(0, 0), Color.Yellow);
+
+                    spriteBatch.Draw(shadowPixel, sprites[0].Bounds, Color.AntiqueWhite);
+
+                    foreach (Sprite s in sprites)
+                    {
+                        s.Draw(spriteBatch);
+                    }
+
+                    Rectangle size = sprites[0].GetSize();
+
+                    for (int i = 0; i < size.Width; i++)
+                        for (int j = 0; j < size.Height; j++)
+                            if (data[i, j])
+                                if (pointsOfCollision.Exists(v => v.X == i && v.Y == j))
+                                    spriteBatch.Draw(lightPixel, new Vector2(768 + (i * 16), (j * 16)), Color.White);
+                                else
+                                    spriteBatch.Draw(shadowPixel, new Vector2(768 + (i * 16), (j * 16)), Color.White); 
+                }
             }
-            string display = "Mouse Pos: " + (new Vector2(mousePos.X / scalingFactor.X, mousePos.Y / scalingFactor.Y)).ToString();
-            display += "\nTime: " + seconds + ":" + milliseconds;
-            display += "\nLoops: " + loops;
-
-            spriteBatch.DrawString(font, display, new Vector2(0, 30), Color.Yellow);
-
-            Rectangle size = sprites[0].GetSize();
-
-            for (int i = 0; i < size.Width; i++)
-                for (int j = 0; j < size.Height; j++)
-                    if (data[i, j])
-                        spriteBatch.Draw(shadowPixel, new Vector2(768 + (i * 16), (j * 16)), Color.White);
 
             spriteBatch.End();
 

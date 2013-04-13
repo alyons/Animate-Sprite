@@ -34,6 +34,11 @@ namespace SpriteLibrary
         #region Variables
         int frame = 0;
         int delay = 0;
+        Matrix transform;
+        Vector2 position;
+        float rotation;
+        float scale;
+        List<bool[,]> opaqueData;
         #endregion
 
         #region Properties
@@ -41,10 +46,6 @@ namespace SpriteLibrary
         /// Name refers to the name given to this specific sprite.
         /// </summary>
         public String Name { get; set; }
-        /// <summary>
-        /// Position refers to the position on the screen at which the sprite will be rendered.
-        /// </summary>
-        public Vector2 Position { get; set; }
         /// <summary>
         /// FPS (short for frames per second) refers to the rate at which the sprite changes image.
         /// </summary>
@@ -68,6 +69,119 @@ namespace SpriteLibrary
         /// </summary>
         [ContentSerializerIgnore]
         public List<Rectangle> Rectangles { get; set; }
+        /// <summary>
+        /// Position refers to the position on the screen at which the sprite will be rendered.
+        /// </summary>
+        [ContentSerializerIgnore]
+        public Vector2 Position
+        {
+            get { return position; }
+            set
+            {
+                if(!(position.Equals(value)))
+                {
+                    position = value;
+                    UpdateTransform();
+                }
+            }
+        }
+        /// <summary>
+        /// Rotation referes to how the sprite is being rotated.
+        /// </summary>
+        [ContentSerializerIgnore]
+        public float Rotation
+        {
+            get { return rotation; }
+            set
+            {
+                if (rotation != value)
+                {
+                    rotation = value;
+                    UpdateTransform();
+                }
+            }
+        }
+        /// <summary>
+        /// Scale refers to how the sprite is being scaled.
+        /// </summary>
+        [ContentSerializerIgnore]
+        public float Scale
+        {
+            get { return scale; }
+            set
+            {
+                if (scale != value)
+                {
+                    scale = value;
+                    UpdateTransform();
+                }
+            }
+        }
+        /// <summary>
+        /// Origin specifies the center of the sprite at the current frame of animation
+        /// </summary>
+        [ContentSerializerIgnore]
+        public Vector2 Origin
+        {
+            get { return new Vector2(Rectangles[frame].Width / 2.0f, Rectangles[frame].Height / 2.0f); }
+        }
+        /// <summary>
+        /// Transforms refers to the transformed qualities of the sprite.
+        /// </summary>
+        [ContentSerializerIgnore]
+        public Matrix Transform
+        {
+            get 
+            {
+                if (transform == null) UpdateTransform();
+                return transform; 
+            }
+        }
+        /// <summary>
+        /// Referes to the bounds set by the rectange after the sprite has been rotated
+        /// </summary>
+        [ContentSerializerIgnore]
+        public Rectangle Bounds
+        {
+            get
+            {
+                Vector2 topLft = new Vector2(Rectangles[frame].Left, Rectangles[frame].Top);
+                Vector2 botLft = new Vector2(Rectangles[frame].Left, Rectangles[frame].Bottom);
+                Vector2 topRgt = new Vector2(Rectangles[frame].Right, Rectangles[frame].Top);
+                Vector2 botRgt = new Vector2(Rectangles[frame].Right, Rectangles[frame].Bottom);
+
+                Vector2.Transform(ref topLft, ref transform, out topLft);
+                Vector2.Transform(ref botLft, ref transform, out botLft);
+                Vector2.Transform(ref topRgt, ref transform, out topRgt);
+                Vector2.Transform(ref botRgt, ref transform, out botRgt);
+
+                Vector2 min = Vector2.Min(Vector2.Min(topLft, topRgt), Vector2.Min(botLft, botRgt));
+                Vector2 max = Vector2.Max(Vector2.Max(topLft, topRgt), Vector2.Max(botLft, botRgt));
+
+
+                return new Rectangle((int)(Position.X - ((max.X - min.X) / 2.0f)), (int)(Position.Y - ((max.Y - min.Y) / 2.0f)), (int)(max.X - min.X), (int)(max.Y - min.Y));
+            }
+        }
+        /// <summary>
+        /// Returns the rectange which is being used in the current frame.
+        /// </summary>
+        [ContentSerializerIgnore]
+        public Rectangle CurrentRectangle
+        {
+            get { return Rectangles[frame]; }
+        }
+        /// <summary>
+        /// Gets a 2D boolean array which states which pixels in the image are opaqe.
+        /// </summary>
+        [ContentSerializerIgnore]
+        public bool[,] OpaqueData
+        {
+            get 
+            {
+                if (opaqueData.Count != Rectangles.Count) BuildOpaqueData();
+                return opaqueData[frame]; 
+            }
+        }
         #endregion
 
         #region Events
@@ -82,6 +196,10 @@ namespace SpriteLibrary
         public Sprite()
         {
             Rectangles = new List<Rectangle>();
+            opaqueData = new List<bool[,]>();
+            Position = Vector2.Zero;
+            Scale = 1.0f;
+            Rotation = 0.0f;
         }
         #endregion
 
@@ -94,39 +212,30 @@ namespace SpriteLibrary
 
         public void Update(GameTime gameTime)
         {
-            delay -= gameTime.ElapsedGameTime.Milliseconds;
-
-            if (delay <= 0)
+            if (FPS > 0)
             {
-                frame++;
-                if (frame >= Rectangles.Count)
+                delay -= gameTime.ElapsedGameTime.Milliseconds;
+
+                if (delay <= 0)
                 {
-                    frame = 0;
-                    if (EndOfAnimation != null) EndOfAnimation(this, new SpriteEventArgs());
+                    frame++;
+                    if (frame >= Rectangles.Count)
+                    {
+                        frame = 0;
+                        if (EndOfAnimation != null) EndOfAnimation(this, new SpriteEventArgs());
+                    }
+                    delay += 1000 / FPS;
                 }
-                delay += 1000 / FPS;
             }
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Texture, Position, Rectangles[frame], Color.White);
+            spriteBatch.Draw(Texture, Position, Rectangles[frame], Color.White, Rotation, Origin, Scale, SpriteEffects.None, 0.0f);
         }
         public void Draw(SpriteBatch spriteBatch, Color color)
         {
-            spriteBatch.Draw(Texture, Position, Rectangles[frame], color);
-        }
-        public void Draw(SpriteBatch spriteBatch, Rectangle destinationRectangle, Color color, float rotation, Vector2 origin, SpriteEffects effects, float layerDepth)
-        {
-            spriteBatch.Draw(Texture, destinationRectangle, Rectangles[frame], color, rotation, origin, effects, layerDepth);
-        }
-        public void Draw(SpriteBatch spriteBatch, Color color, float rotation, Vector2 origin, float scale, SpriteEffects effects, float layerDepth)
-        {
-            spriteBatch.Draw(Texture, Position, Rectangles[frame], color, rotation, origin, scale, effects, layerDepth);
-        }
-        public void Draw(SpriteBatch spriteBatch, Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects effects, float layerDepth)
-        {
-            spriteBatch.Draw(Texture, Position, Rectangles[frame], color, rotation, origin, scale, effects, layerDepth);
+            spriteBatch.Draw(Texture, Position, Rectangles[frame], color, Rotation, Origin, Scale, SpriteEffects.None, 0.0f);
         }
 
         private void StringToRectangle(List<string> strings)
@@ -140,81 +249,181 @@ namespace SpriteLibrary
             }
         }
 
-        public bool[,] GetOpaqueData()
+        public void BuildOpaqueData()
         {
-            return GetOpaqueData(255);
+            BuildOpaqueData(255);
         }
-        public bool[,] GetOpaqueData(int alpha)
+        public void BuildOpaqueData(int alpha)
         {
-            int x = Rectangles[frame].X;
-            int y = Rectangles[frame].Y;
-            int h = Rectangles[frame].Height;
-            int w = Rectangles[frame].Width;
-            bool[,] data = new bool[w, h];
-            Color[] pixels = new Color[Texture.Width * Texture.Height];
-            Texture.GetData<Color>(pixels);
+            opaqueData.Clear();
 
-            for (int i = x; i < x + w; i++)
-                for (int j = y; j < y + h; j++)
-                    data[i - x, j - y] = (pixels[i + j * Texture.Width].A >= alpha);
+            for (int q = 0; q < Rectangles.Count; q++)
+            {
+                int x = Rectangles[q].X;
+                int y = Rectangles[q].Y;
+                int h = Rectangles[q].Height;
+                int w = Rectangles[q].Width;
+                bool[,] data = new bool[w, h];
+                Color[] pixels = new Color[Texture.Width * Texture.Height];
+                Texture.GetData<Color>(pixels);
 
-            return data;
+                for (int i = x; i < x + w; i++)
+                    for (int j = y; j < y + h; j++)
+                        data[i - x, j - y] = (pixels[i + j * Texture.Width].A >= alpha);
+
+                opaqueData.Add(data);
+            }
         }
-        public bool[,] GetOpaqueData(Color toTest)
+        public void BuildOpaqueData(Color toTest)
         {
-            return GetOpaqueData(toTest, true);
+            BuildOpaqueData(toTest, true);
         }
-        public bool[,] GetOpaqueData(List<Color> toTest)
+        public void BuildOpaqueData(List<Color> toTest)
         {
-            return GetOpaqueData(toTest, true);
+            BuildOpaqueData(toTest, true);
         }
-        public bool[,] GetOpaqueData(Color toTest, bool isIgnore)
+        public void BuildOpaqueData(Color toTest, bool isIgnore)
         {
-            int x = Rectangles[frame].X;
-            int y = Rectangles[frame].Y;
-            int h = Rectangles[frame].Height;
-            int w = Rectangles[frame].Width;
-            bool[,] data = new bool[w, h];
-            Color[] pixels = new Color[Texture.Width * Texture.Height];
-            Texture.GetData<Color>(pixels);
+            opaqueData.Clear();
 
-            for (int i = x; i < x + w; i++)
-                for (int j = y; j < y + h; j++)
-                    if (isIgnore)
-                    {
-                        data[i - x, j - y] = !(pixels[i + j * Texture.Width].Equals(toTest));
-                        //Debug.WriteLine(String.Format("Pixel ({0},{1}): {2}", (i - x), (j - y), pixels[i + j * Texture.Width].ToString()));
-                    }
-                    else
-                    {
-                        data[i - x, j - y] = (pixels[i + j * Texture.Width].Equals(toTest));
-                    }
+            for (int q = 0; q < Rectangles.Count; q++)
+            {
+                int x = Rectangles[q].X;
+                int y = Rectangles[q].Y;
+                int h = Rectangles[q].Height;
+                int w = Rectangles[q].Width;
+                bool[,] data = new bool[w, h];
+                Color[] pixels = new Color[Texture.Width * Texture.Height];
+                Texture.GetData<Color>(pixels);
 
-            return data;
+                for (int i = x; i < x + w; i++)
+                    for (int j = y; j < y + h; j++)
+                        if (isIgnore)
+                        {
+                            data[i - x, j - y] = !(pixels[i + j * Texture.Width].Equals(toTest));
+                            //Debug.WriteLine(String.Format("Pixel ({0},{1}): {2}", (i - x), (j - y), pixels[i + j * Texture.Width].ToString()));
+                        }
+                        else
+                        {
+                            data[i - x, j - y] = (pixels[i + j * Texture.Width].Equals(toTest));
+                        }
+
+                opaqueData.Add(data);
+            }
         }
-        public bool[,] GetOpaqueData(List<Color> toTest, bool isIgnore)
+        public void BuildOpaqueData(List<Color> toTest, bool isIgnore)
         {
-            int x = Rectangles[frame].X;
-            int y = Rectangles[frame].Y;
-            int h = Rectangles[frame].Height;
-            int w = Rectangles[frame].Width;
-            bool[,] data = new bool[w, h];
-            Color[] pixels = new Color[Texture.Width * Texture.Height];
-            Texture.GetData<Color>(pixels);
+            opaqueData.Clear();
 
-            for (int i = x; i < x + w; i++)
-                for (int j = y; j < y + h; j++)
-                    if (isIgnore)
-                        data[i - x, j - y] = !toTest.Exists(c => c.Equals(pixels[i + j * Texture.Width]));
-                    else
-                        data[i - x, j - y] = toTest.Exists(c => c.Equals(pixels[i + j * Texture.Width]));
+            for (int q = 0; q < Rectangles.Count; q++)
+            {
+                int x = Rectangles[q].X;
+                int y = Rectangles[q].Y;
+                int h = Rectangles[q].Height;
+                int w = Rectangles[q].Width;
+                bool[,] data = new bool[w, h];
+                Color[] pixels = new Color[Texture.Width * Texture.Height];
+                Texture.GetData<Color>(pixels);
 
-            return data;
+                for (int i = x; i < x + w; i++)
+                    for (int j = y; j < y + h; j++)
+                        if (isIgnore)
+                            data[i - x, j - y] = !toTest.Exists(c => c.Equals(pixels[i + j * Texture.Width]));
+                        else
+                            data[i - x, j - y] = toTest.Exists(c => c.Equals(pixels[i + j * Texture.Width]));
+
+                opaqueData.Add(data);
+            }
         }
 
         public Rectangle GetSize()
         {
             return Rectangles[frame];
+        }
+
+        public bool Collide(Sprite other)
+        {
+            if (Bounds.Intersects(other.Bounds))
+            {
+                Matrix transformAToB = Transform * Matrix.Invert(other.Transform);
+
+                Vector2 stepX = Vector2.TransformNormal(Vector2.UnitX, transformAToB);
+                Vector2 stepY = Vector2.TransformNormal(Vector2.UnitY, transformAToB);
+
+                Vector2 yPosInB = Vector2.Transform(Vector2.Zero, transformAToB);
+
+                for (int yA = 0; yA < CurrentRectangle.Height; yA++)
+                {
+                    Vector2 posInB = yPosInB;
+
+                    for (int xA = 0; xA < CurrentRectangle.Width; xA++)
+                    {
+                        int xB = (int)Math.Round(posInB.X);
+                        int yB = (int)Math.Round(posInB.Y);
+
+                        if (0 <= xB && xB < other.CurrentRectangle.Width && 0 <= yB && yB < other.CurrentRectangle.Height)
+                        {
+                            bool[,] thisData = OpaqueData;
+                            bool[,] thatData = other.OpaqueData;
+
+                            if (thisData[xA, yA] && thatData[xB, yB]) return true;
+                        }
+
+                        posInB += stepX;
+                    }
+
+                    yPosInB += stepY;
+                }
+            }
+
+            return false;
+        }
+        public List<Vector2> PointsOfCollision(Sprite other)
+        {
+            List<Vector2> output = new List<Vector2>();
+
+            if (Bounds.Intersects(other.Bounds))
+            {
+                Matrix transformAToB = Transform * Matrix.Invert(other.Transform);
+
+                Vector2 stepX = Vector2.TransformNormal(Vector2.UnitX, transformAToB);
+                Vector2 stepY = Vector2.TransformNormal(Vector2.UnitY, transformAToB);
+
+                Vector2 yPosInB = Vector2.Transform(Vector2.Zero, transformAToB);
+
+                for (int yA = 0; yA < CurrentRectangle.Height; yA++)
+                {
+                    Vector2 posInB = yPosInB;
+
+                    for (int xA = 0; xA < CurrentRectangle.Width; xA++)
+                    {
+                        int xB = (int)Math.Round(posInB.X);
+                        int yB = (int)Math.Round(posInB.Y);
+
+                        if (0 <= xB && xB < other.CurrentRectangle.Width && 0 <= yB && yB < other.CurrentRectangle.Height)
+                        {
+                            bool[,] thisData = OpaqueData;
+                            bool[,] thatData = other.OpaqueData;
+
+                            if (thisData[xA, yA] && thatData[xB, yB]) output.Add(new Vector2(xA, yA));
+                        }
+
+                        posInB += stepX;
+                    }
+
+                    yPosInB += stepY;
+                }
+            }
+
+            return output;
+        }
+
+        private void UpdateTransform()
+        {
+            if (Rectangles.Count > 0)
+            {
+                transform = Matrix.CreateTranslation(new Vector3(-Origin, 0.0f)) * Matrix.CreateScale(Scale) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(new Vector3(Position, 0.0f));
+            }
         }
         #endregion
     }

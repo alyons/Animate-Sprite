@@ -34,7 +34,6 @@ namespace SpriteLibraryContentExtension
         protected override void Write(ContentWriter output, Sprite value)
         {
             output.Write(value.Name);
-            output.Write(value.Position);
             output.Write(value.FPS);
             output.Write(value.TextureAsset);
             output.Write(value.RectangleAsset);

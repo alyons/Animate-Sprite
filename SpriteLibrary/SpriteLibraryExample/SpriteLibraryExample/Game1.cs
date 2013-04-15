@@ -205,7 +205,7 @@ namespace SpriteLibraryExample
                         s.Draw(spriteBatch);
                     }
 
-                    Rectangle size = sprites[0].GetSize();
+                    Rectangle size = sprites[0].CurrentRectangle;
 
                     for (int i = 0; i < size.Width; i++)
                         for (int j = 0; j < size.Height; j++)

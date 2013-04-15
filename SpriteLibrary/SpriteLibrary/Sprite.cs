@@ -97,6 +97,8 @@ namespace SpriteLibrary
                 if (rotation != value)
                 {
                     rotation = value;
+                    while (rotation > 2.0f * Math.PI) rotation -= (float)(2.0f * Math.PI);
+                    while (rotation < -(2.0f * Math.PI)) rotation += (float)(2.0f * Math.PI);
                     UpdateTransform();
                 }
             }
@@ -129,7 +131,7 @@ namespace SpriteLibrary
         /// Transforms refers to the transformed qualities of the sprite.
         /// </summary>
         [ContentSerializerIgnore]
-        public Matrix Transform
+        Matrix Transform
         {
             get 
             {
@@ -334,11 +336,6 @@ namespace SpriteLibrary
 
                 opaqueData.Add(data);
             }
-        }
-
-        public Rectangle GetSize()
-        {
-            return Rectangles[frame];
         }
 
         public bool Collide(Sprite other)

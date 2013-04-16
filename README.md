@@ -26,6 +26,9 @@ Version 2.0 - Added Rotation, Scale, Origin, Transform, Bounds, CurrentRectange,
 			  pixel perfect collision detection to be done even when the sprite is rotated or scaled. Removed some of the draw overrides, 
 			  will add in what I think needs to be added back in. (Possibly on request).
 			  
+Version 2.1 - Added ChangeFrame Event, which will tell the caller when a frame has changed and what frame it has changed to. Added the
+			  SpriteEffects to handle what effects will be applied to the sprite.
+			  
 Feature Set
 ============================================
 Done
@@ -33,6 +36,9 @@ Done
  * Pixel Perfect Collision Detection (Done)
  * Transformation Pixel Perfect Collision Detection (Done)
  * Eliminate Slow Down from Collision Calculation (Done)
+ * Change Frame Event (Done)
+ * End of Animation Event (Done)
+ * SpriteEffect changes collision area (Done)
 
 To Do
 --------------------------------------------
@@ -41,15 +47,16 @@ To Do
 
 Might Do
 -------------------------------------------
- * Update Sprite to allow for 2.5D gaming (i.e. layering)
- * Define Rectangles in Sprite XML
+ * Allow for specific frames to throw ChangeFrame Events
  * Allow for regions to be defined for collision
- * Allow for colliion regions to be predefined
- * Allow for detection colors to be predefined
+ * Allow for ractangles to be predefined in Sprite XML
+ * Allow for collision regions to be predefined in Sprite XML
+ * Allow for detection colors to be predefined in Sprite XML
  * Create Version for XNA 4.5
  
 Low Possibility
 -------------------------------------------
+ * Update Sprite to allow for 2.5D gaming (i.e. layering)
  * Create a Utility to create sprites from textures
 
 How To Use this library.
@@ -157,7 +164,9 @@ Events
 --------------------------------------------
 <dl>
 <dt>EndOfAnimation</dt>
-<dd>This uses a sprite event handler, but it is nothing too special right now, may add some more features in the future.</dd>
+<dd>This alerts when the sprite has gone past it's last frame (i.e. hit frame zero).</dd>
+<dt>ChangeFrame</dt>
+<dd>This alerts when the sprite has changed frame.</dd>
 </dl>
 
 Properties
@@ -187,6 +196,8 @@ Properties
 <dd>Defines the current space that the sprite is occupying (including empty space). This takes into account Position, Rotation, and Scale(the Bound rectangle itself does not rotate, but it will contain all of the rotated sprite).</dd>
 <dt>OpaqueData (bool[,])</dt>
 <dd>Returns a 2D array of booleans which corresponds with which pixels have color in them. This data is not rotated nor scaled.</dd>
+<dt>SpriteEffects</dt>
+<dd>The sprite effects being applied to the sprite.</dd>
 </dl>
 
 Methods

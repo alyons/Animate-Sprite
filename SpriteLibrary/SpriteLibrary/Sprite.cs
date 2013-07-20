@@ -425,7 +425,7 @@ namespace SpriteLibrary
 
         public void Dispose()
         {
-            Texture.Dispose();
+            if (Texture != null) Texture.Dispose();
         }
         #endregion
     }

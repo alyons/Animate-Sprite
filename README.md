@@ -26,6 +26,9 @@ Version 2.0 - Added Rotation, Scale, Origin, Transform, Bounds, CurrentRectange,
 			  pixel perfect collision detection to be done even when the sprite is rotated or scaled. Removed some of the draw overrides, 
 			  will add in what I think needs to be added back in. (Possibly on request).
 			  
+Version 2.1 - Added Dispose(). Right now this just disposes of Texture inside of the Sprite, but could do more if I find that the need
+			  is there.
+			  
 Feature Set
 ============================================
 Done
@@ -37,15 +40,23 @@ Done
 To Do
 --------------------------------------------
  * Update Example
+ * Allow for Effects to be applied to sprites
  * Write Read Me
 
 Might Do
 -------------------------------------------
+ * Region Collision Detection
+   * Allow regions to define areas which can collide
+   * Allow regions to have colors for collision
+   * Allow for regions per frame
+   * Allow for region return on collision
+   * Allow for sprite to be defined with no regions
  * Update Sprite to allow for 2.5D gaming (i.e. layering)
  * Define Rectangles in Sprite XML
  * Allow for regions to be defined for collision
- * Allow for colliion regions to be predefined
+ * Allow for collision regions to be predefined
  * Allow for detection colors to be predefined
+ * Allow 
  * Create Version for XNA 4.5
  
 Low Possibility
@@ -138,11 +149,11 @@ Honestly, this is not the hard part, it's choosing when to check for collisions,
 
 		spriteA.Collide(spriteB);
 
-The Collide function returns wether or not two sprites have overlapping collidable pixels.
+The Collide function returns whether or not two sprites have overlapping collidable pixels.
 
 How to Apply Transformations to Sprite
 --------------------------------------------
-Just use the Position, Rotation, and Scale protperties. This will ensure that everything is handled correctly(or so I hope).
+Just use the Position, Rotation, and Scale properties. This will ensure that everything is handled correctly(or so I hope).
 
 Something Akin to an API
 ============================================
@@ -206,6 +217,8 @@ Methods
 <dd>Tells whether or not two sprites are colliding.</dd>
 <dt>List<Vector2> PointsOfCollision(Sprite other)</dt>
 <dd>Tells the points at which two sprites collide.</dd>
+<dt>void Dispose()</dt>
+<dd>Calls Dispose on Texture.</dd>
 </dl>
 
 Note: This section is still incomplete.
@@ -241,7 +254,7 @@ distributed product for gain.
 Contact me at pyroticblaziken@gmail.com
 
 Please, before you email me questions concerning this, would you be so kind as to read through my document here. I really tried to make it at 
-least some what thourough, so if I get a question of "how do I load a sprite?", I probably won't answer. Also, if you find any bugs or anything
+least some what thorough, so if I get a question of "how do I load a sprite?", I probably won't answer. Also, if you find any bugs or anything
 let me know so that I can go through and change them. I will probably have a way to do forks and such in the future, but for now, just email me.
 
 Copyright 2010, 2011, 2013 Alexander Lyons

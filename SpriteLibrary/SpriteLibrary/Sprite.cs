@@ -422,6 +422,11 @@ namespace SpriteLibrary
                 transform = Matrix.CreateTranslation(new Vector3(-Origin, 0.0f)) * Matrix.CreateScale(Scale) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(new Vector3(Position, 0.0f));
             }
         }
+
+        public void Dispose()
+        {
+            Texture.Dispose();
+        }
         #endregion
     }
 }

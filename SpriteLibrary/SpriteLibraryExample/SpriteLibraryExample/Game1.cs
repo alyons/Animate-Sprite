@@ -105,7 +105,13 @@ namespace SpriteLibraryExample
                 if (s.Name.Equals("Sonic Standing"))
                 {
                     s.Position = new Vector2(640.0f, 360.0f);
-                    s.Scale = 2.0f;
+                    s.Scale = 5.0f;
+                    s.SpriteEffects |= SpriteEffects.FlipHorizontally;
+                }
+                if (s.Name.Equals("Chaos Emerald"))
+                {
+                    s.Scale = 5.0f;
+                    s.SpriteEffects |= SpriteEffects.FlipVertically;
                 }
                 s.EndOfAnimation += new Sprite.SpriteEventHandler(s_EndOfAnimation);
             }
@@ -150,12 +156,13 @@ namespace SpriteLibraryExample
                     {
                         s.Update(gameTime);
                     }
-                    sprites[0].Rotation += rotationSpeed;
+                    //sprites[0].Rotation += rotationSpeed;
                     data = sprites[0].OpaqueData;
                 }
 
                 if (sprites.Count > 1)
                 {
+                    //sprites[1].Rotation -= (float)(2.0 * Math.PI * gameTime.ElapsedGameTime.Milliseconds * 0.001);
                     sprites[1].Position = mousePos;
                     boundsCollide = sprites[0].Bounds.Intersects(sprites[1].Bounds);
                     collision = sprites[0].Collide(sprites[1]);

@@ -24,6 +24,20 @@ namespace SpriteLibrary
 {
     public class SpriteEventArgs : EventArgs
     {
+        #region Properties
+        public int CurrentFrame { get; private set; }
+        #endregion
 
+        #region Constructors
+        public SpriteEventArgs()
+        {
+
+        }
+
+        public SpriteEventArgs(int frame)
+        {
+            CurrentFrame = frame;
+        }
+        #endregion
     }
 }

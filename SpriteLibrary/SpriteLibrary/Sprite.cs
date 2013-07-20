@@ -38,6 +38,7 @@ namespace SpriteLibrary
         Vector2 position;
         float rotation;
         float scale;
+        SpriteEffects spriteEffects;
         List<bool[,]> opaqueData;
         #endregion
 
@@ -184,10 +185,27 @@ namespace SpriteLibrary
                 return opaqueData[frame]; 
             }
         }
+        /// <summary>
+        /// Apply SpriteEffects to the sprite, while still maintaining the collision detection.
+        /// </summary>
+        [ContentSerializerIgnore]
+        public SpriteEffects SpriteEffects
+        {
+            get { return spriteEffects; }
+            set
+            {
+                if (!spriteEffects.Equals(value))
+                {
+                    UpdateOpaqueData(spriteEffects, value);
+                    spriteEffects = value;
+                }
+            }
+        }
         #endregion
 
         #region Events
         public event SpriteEventHandler EndOfAnimation;
+        public event SpriteEventHandler ChangeFrame;
         #endregion
 
         #region Delegates
@@ -221,6 +239,7 @@ namespace SpriteLibrary
                 if (delay <= 0)
                 {
                     frame++;
+                    if (ChangeFrame != null) ChangeFrame(this, new SpriteEventArgs(frame));
                     if (frame >= Rectangles.Count)
                     {
                         frame = 0;
@@ -233,11 +252,15 @@ namespace SpriteLibrary
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Texture, Position, Rectangles[frame], Color.White, Rotation, Origin, Scale, SpriteEffects.None, 0.0f);
+            spriteBatch.Draw(Texture, Position, Rectangles[frame], Color.White, Rotation, Origin, Scale, SpriteEffects, 0.0f);
         }
         public void Draw(SpriteBatch spriteBatch, Color color)
         {
-            spriteBatch.Draw(Texture, Position, Rectangles[frame], color, Rotation, Origin, Scale, SpriteEffects.None, 0.0f);
+            spriteBatch.Draw(Texture, Position, Rectangles[frame], color, Rotation, Origin, Scale, SpriteEffects, 0.0f);
+        }
+        public void Draw(SpriteBatch spriteBatch, Color color, float layer)
+        {
+            spriteBatch.Draw(Texture, Position, Rectangles[frame], color, Rotation, Origin, Scale, SpriteEffects, layer);
         }
 
         private void StringToRectangle(List<string> strings)
@@ -275,6 +298,8 @@ namespace SpriteLibrary
 
                 opaqueData.Add(data);
             }
+
+            UpdateOpaqueData(SpriteEffects.None, spriteEffects);
         }
         public void BuildOpaqueData(Color toTest)
         {
@@ -312,6 +337,8 @@ namespace SpriteLibrary
 
                 opaqueData.Add(data);
             }
+
+            UpdateOpaqueData(SpriteEffects.None, spriteEffects);
         }
         public void BuildOpaqueData(List<Color> toTest, bool isIgnore)
         {
@@ -336,6 +363,8 @@ namespace SpriteLibrary
 
                 opaqueData.Add(data);
             }
+
+            UpdateOpaqueData(SpriteEffects.None, spriteEffects);
         }
 
         public bool Collide(Sprite other)
@@ -420,6 +449,68 @@ namespace SpriteLibrary
             if (Rectangles.Count > 0)
             {
                 transform = Matrix.CreateTranslation(new Vector3(-Origin, 0.0f)) * Matrix.CreateScale(Scale) * Matrix.CreateRotationZ(Rotation) * Matrix.CreateTranslation(new Vector3(Position, 0.0f));
+            }
+        }
+        private void UpdateOpaqueData(SpriteEffects priorEffect, SpriteEffects currentEffect)
+        {
+            for (int o = 0; o < opaqueData.Count; o++)
+            {
+                bool[,] priorToNormal = new bool[opaqueData[o].GetLength(0), opaqueData[o].GetLength(1)];
+                bool[,] normalToNew = new bool[opaqueData[o].GetLength(0), opaqueData[o].GetLength(1)];
+
+                if ((priorEffect & SpriteEffects.FlipHorizontally) == SpriteEffects.FlipHorizontally)
+                {
+                    for (int x = 0; x < opaqueData[o].GetLength(0); x++)
+                        for (int y = 0; y < opaqueData[o].GetLength(1); y++)
+                            priorToNormal[x, y] = opaqueData[o][(opaqueData[o].GetLength(0) - x - 1), y];
+                }
+                else if ((priorEffect & SpriteEffects.FlipVertically) == SpriteEffects.FlipVertically)
+                {
+                    for (int x = 0; x < opaqueData[o].GetLength(0); x++)
+                        for (int y = 0; y < opaqueData[o].GetLength(1); y++)
+                            priorToNormal[x, y] = opaqueData[o][x, (opaqueData[o].GetLength(1) - y - 1)];
+                }
+                else if (((priorEffect & SpriteEffects.FlipHorizontally) == SpriteEffects.FlipHorizontally) && ((priorEffect & SpriteEffects.FlipVertically) == SpriteEffects.FlipVertically))
+                {
+                    for (int x = 0; x < opaqueData[o].GetLength(0); x++)
+                        for (int y = 0; y < opaqueData[o].GetLength(1); y++)
+                            priorToNormal[x, y] = opaqueData[o][(opaqueData[o].GetLength(0) - x - 1), (opaqueData[o].GetLength(1) - y - 1)];
+                }
+                else
+                {
+                    for (int x = 0; x < opaqueData[o].GetLength(0); x++)
+                        for (int y = 0; y < opaqueData[o].GetLength(1); y++)
+                            priorToNormal[x, y] = opaqueData[o][x, y];
+                }
+
+                if ((currentEffect & SpriteEffects.FlipHorizontally) == SpriteEffects.FlipHorizontally)
+                {
+                    for (int x = 0; x < priorToNormal.GetLength(0); x++)
+                        for (int y = 0; y < priorToNormal.GetLength(1); y++)
+                            normalToNew[x, y] = priorToNormal[(priorToNormal.GetLength(0) - x - 1), y];
+                }
+                else if ((currentEffect & SpriteEffects.FlipVertically) == SpriteEffects.FlipVertically)
+                {
+                    for (int x = 0; x < priorToNormal.GetLength(0); x++)
+                        for (int y = 0; y < priorToNormal.GetLength(1); y++)
+                            normalToNew[x, y] = priorToNormal[x, (priorToNormal.GetLength(1) - y - 1)];
+                }
+                else if (((currentEffect & SpriteEffects.FlipHorizontally) == SpriteEffects.FlipHorizontally) && ((priorEffect & SpriteEffects.FlipVertically) == SpriteEffects.FlipVertically))
+                {
+                    for (int x = 0; x < priorToNormal.GetLength(0); x++)
+                        for (int y = 0; y < priorToNormal.GetLength(1); y++)
+                            normalToNew[x, y] = priorToNormal[(priorToNormal.GetLength(0) - x - 1), (priorToNormal.GetLength(1) - y - 1)];
+                }
+                else
+                {
+                    for (int x = 0; x < priorToNormal.GetLength(0); x++)
+                        for (int y = 0; y < priorToNormal.GetLength(1); y++)
+                            normalToNew[x, y] = priorToNormal[x, y];
+                }
+
+                for (int x = 0; x < normalToNew.GetLength(0); x++)
+                    for (int y = 0; y < normalToNew.GetLength(1); y++)
+                        opaqueData[o][x, y] = normalToNew[x, y];
             }
         }
 

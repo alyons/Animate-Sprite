@@ -27,7 +27,7 @@ namespace SpriteLibraryExample
         /// </summary>
         static void Main(string[] args)
         {
-            using (Game1 game = new Game1())
+            using (SpriteExampleGame game = new SpriteExampleGame())
             {
                 game.Run();
             }

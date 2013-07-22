@@ -32,7 +32,7 @@ namespace SpriteLibraryExample
     /// <summary>
     /// This is the main type for your game
     /// </summary>
-    public class Game1 : Microsoft.Xna.Framework.Game
+    public class SpriteExampleGame : Microsoft.Xna.Framework.Game
     {
         int minutes = 0;
         int seconds = 0;
@@ -58,7 +58,12 @@ namespace SpriteLibraryExample
         Vector2 mousePos = new Vector2();
         bool useLarger = true;
 
-        public Game1()
+        Effect collideEffect;
+
+        public Matrix View;
+        public Matrix Projection;
+
+        public SpriteExampleGame()
         {
             graphics = new GraphicsDeviceManager(this);
             if (useLarger)
@@ -115,6 +120,11 @@ namespace SpriteLibraryExample
                 }
                 s.EndOfAnimation += new Sprite.SpriteEventHandler(s_EndOfAnimation);
             }
+
+            collideEffect = Content.Load<Effect>("superCollide");
+
+            float aspectRatio = (float)GraphicsDevice.Viewport.Width / (float)GraphicsDevice.Viewport.Height;
+            Projection = Matrix.CreatePerspectiveFieldOfView(1.0f, aspectRatio, 1.0f, 100000f);
         }
 
         void s_EndOfAnimation(object sender, SpriteEventArgs e)
@@ -167,7 +177,17 @@ namespace SpriteLibraryExample
                     boundsCollide = sprites[0].Bounds.Intersects(sprites[1].Bounds);
                     collision = sprites[0].Collide(sprites[1]);
                     pointsOfCollision.Clear();
-                    if (collision) pointsOfCollision.AddRange(sprites[0].PointsOfCollision(sprites[1]));
+                    if (collision)
+                    {
+                        pointsOfCollision.AddRange(sprites[0].PointsOfCollision(sprites[1]));
+                        if (sprites[0].Effect == null) sprites[0].Effect = collideEffect;
+                        //sprites[0].Effect.Parameters["Projection"].SetValue(Projection);
+                        //sprites[0].Effect.Parameters["Time"].SetValue((float)gameTime.TotalGameTime.TotalSeconds);
+                    }
+                    else
+                    {
+                        sprites[0].Effect = null;
+                    }
                 } 
             }
 
@@ -197,20 +217,26 @@ namespace SpriteLibraryExample
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
-            spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, globalScaling);
+            //
 
             if (sprites != null)
             {
                 if (sprites.Count > 0)
                 {
+                    spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, globalScaling);
+
                     spriteBatch.DrawString(font, String.Format(displayFormat, String.Format(timeFormat, minutes, seconds, milliseconds), sprites[0].Bounds, boundsCollide, collision), new Vector2(0, 0), Color.Yellow);
 
                     spriteBatch.Draw(shadowPixel, sprites[0].Bounds, Color.AntiqueWhite);
+
+                    spriteBatch.End();
 
                     foreach (Sprite s in sprites)
                     {
                         s.Draw(spriteBatch);
                     }
+
+                    spriteBatch.Begin(SpriteSortMode.Immediate, null, null, null, null, null, globalScaling);
 
                     Rectangle size = sprites[0].CurrentRectangle;
 
@@ -220,11 +246,13 @@ namespace SpriteLibraryExample
                                 if (pointsOfCollision.Exists(v => v.X == i && v.Y == j))
                                     spriteBatch.Draw(lightPixel, new Vector2(768 + (i * 16), (j * 16)), Color.White);
                                 else
-                                    spriteBatch.Draw(shadowPixel, new Vector2(768 + (i * 16), (j * 16)), Color.White); 
+                                    spriteBatch.Draw(shadowPixel, new Vector2(768 + (i * 16), (j * 16)), Color.White);
+
+                    spriteBatch.End();
                 }
             }
 
-            spriteBatch.End();
+            //
 
             base.Draw(gameTime);
         }

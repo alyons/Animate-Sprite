@@ -40,6 +40,7 @@ namespace SpriteLibrary
         float scale;
         SpriteEffects spriteEffects;
         List<bool[,]> opaqueData;
+        Effect effect;
         #endregion
 
         #region Properties
@@ -201,6 +202,15 @@ namespace SpriteLibrary
                 }
             }
         }
+        /// <summary>
+        /// Apply Effect to the drawing of the sprite
+        /// </summary>
+        [ContentSerializerIgnore]
+        public Effect Effect
+        {
+            get { return effect; }
+            set { effect = value; }
+        }
         #endregion
 
         #region Events
@@ -252,15 +262,17 @@ namespace SpriteLibrary
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Texture, Position, Rectangles[frame], Color.White, Rotation, Origin, Scale, SpriteEffects, 0.0f);
+            Draw(spriteBatch, Color.White, 0.0f);
         }
         public void Draw(SpriteBatch spriteBatch, Color color)
         {
-            spriteBatch.Draw(Texture, Position, Rectangles[frame], color, Rotation, Origin, Scale, SpriteEffects, 0.0f);
+            Draw(spriteBatch, color, 0.0f);
         }
         public void Draw(SpriteBatch spriteBatch, Color color, float layer)
         {
-            spriteBatch.Draw(Texture, Position, Rectangles[frame], color, Rotation, Origin, Scale, SpriteEffects, layer);
+                spriteBatch.Begin(0, null, null, null, null, effect);
+                spriteBatch.Draw(Texture, Position, Rectangles[frame], color, Rotation, Origin, Scale, SpriteEffects, layer);
+                spriteBatch.End();
         }
 
         private void StringToRectangle(List<string> strings)
